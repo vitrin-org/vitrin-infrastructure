@@ -1,0 +1,39 @@
+services:
+  # Development overrides
+  backend:
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=dev-secret-key-change-in-production
+    volumes:
+      - ./backend:/app
+      - /app/venv  # Exclude virtual environment
+    command: >
+      sh -c "python vitrin/manage.py migrate &&
+              python vitrin/manage.py collectstatic --noinput &&
+              python vitrin/manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.dev
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8000/api
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"  # Vite dev server port
+
+  # Disable Nginx in development
+  nginx:
+    profiles:
+      - production
+
+  # Disable Celery in development (optional)
+  celery:
+    profiles:
+      - production
+  celery-beat:
+    profiles:
+      - production
