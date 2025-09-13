@@ -5,25 +5,26 @@ services:
       - DEBUG=True
       - SECRET_KEY=dev-secret-key-change-in-production
     volumes:
-      - ./backend:/app
+      - ../vitrin-backend:/app
       - /app/venv  # Exclude virtual environment
     command: >
-      sh -c "python vitrin/manage.py migrate &&
-              python vitrin/manage.py collectstatic --noinput &&
-              python vitrin/manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py migrate &&
+              python manage.py collectstatic --noinput &&
+              python manage.py runserver 0.0.0.0:8000"
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend.dev
+      context: ..
+      dockerfile: vitrin-infrastructure/Dockerfile.frontend.dev
     environment:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:8000/api
+      
     volumes:
-      - .:/app
+      - ../vitrin-frontend:/app
       - /app/node_modules
     ports:
-      - "5173:5173"  # Vite dev server port
+      - "3001:3000"  # Vite dev server port
 
   # Disable Nginx in development
   nginx:

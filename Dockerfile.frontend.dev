@@ -1,19 +1,24 @@
 # Development Dockerfile for Vitrin React App
 FROM node:18-alpine
 
-# Install dependencies only when needed
-RUN apk add --no-cache libc6-compat
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install dependencies
+RUN apk add --no-cache libc6-compat
+
+# Copy package files from frontend
+COPY vitrin-frontend/package*.json ./
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy frontend source code
+COPY vitrin-frontend/ ./
+
+# Copy shared package
+COPY vitrin-shared/ ./vitrin-shared/
 
 # Expose port
-EXPOSE 5173
+EXPOSE 3000
 
-# Start the development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+# Start development server
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

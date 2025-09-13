@@ -7,14 +7,17 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY vitrin-frontend/package*.json ./
 RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY vitrin-frontend/ ./
+
+# Copy shared package
+COPY vitrin-shared/ ./vitrin-shared/
 
 # Build the application
 RUN npm run build
@@ -26,7 +29,7 @@ FROM nginx:alpine AS runner
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY vitrin-infrastructure/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
